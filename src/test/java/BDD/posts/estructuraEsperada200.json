@@ -1,0 +1,29 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "id": "#string",
+      "id_ficha_recurso": "#string",
+      "in_mostrar_cantidad": "#boolean",
+      "cantidad": "#? _ == null || typeof _ == 'string'",
+      "de_adicional": "#? _ == null || typeof _ == 'string'",
+      "cantidad_laboratorio": "#number",
+      "nombre": "#string",
+      "especificaciones": "#string",
+      "tipo_laboratorio": {
+        "id": "#string",
+        "descripcion": "#string"
+      },
+      "categoria": {
+        "id": "#string",
+        "descripcion": "#string",
+        "de_corta": "#string"
+      },
+      "modelo": {
+        "id": "#string",
+        "descripcion": "#string"
+      },
+      "unidad_medida": "#? Object.keys(_).length == 0 || (typeof _.id == 'string' && typeof _.descripcion == 'string')"
+    }
+  ]
+}

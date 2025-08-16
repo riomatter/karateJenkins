@@ -1,0 +1,21 @@
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <!-- Silenciar logs excesivos -->
+    <logger name="com.intuit.karate" level="INFO"/>
+    <logger name="org.apache.http" level="WARN"/>
+    <logger name="org.apache.commons" level="WARN"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="com.zaxxer" level="WARN"/>
+    <logger name="io.netty" level="WARN"/>
+
+</configuration>
