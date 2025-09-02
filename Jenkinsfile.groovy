@@ -17,10 +17,14 @@ pipeline {
             }
             post {
                 always {
+                    // (opcional) también guarda todos los archivos por si quieres descargarlos
+                    archiveArtifacts artifacts: 'target/karate-reports/**', allowEmptyArchive: false
+
+                    // Publica el índice de Karate
                     publishHTML(target: [
                             reportName: 'Karate HTML',
-                            reportDir: 'target/karate-reports',
-                            reportFiles: 'karate-summary.html',
+                            reportDir: 'target/karate-reports',     // carpeta dentro del workspace
+                            reportFiles: 'karate-summary.html',     // archivo inicial a mostrar
                             keepAll: true,
                             alwaysLinkToLastBuild: true,
                             allowMissing: false
