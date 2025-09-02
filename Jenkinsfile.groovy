@@ -17,8 +17,14 @@ pipeline {
             }
             post {
                 always {
-                    junit 'target/surefire-reports/*.xml'
-                    archiveArtifacts 'target/karate-reports/**'
+                    publishHTML(target: [
+                            reportName: 'Karate HTML',
+                            reportDir: 'target/karate-reports',
+                            reportFiles: 'karate-summary.html',
+                            keepAll: true,
+                            alwaysLinkToLastBuild: true,
+                            allowMissing: false
+                    ])
                 }
             }
         }
