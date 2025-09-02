@@ -9,15 +9,15 @@ pipeline {
                     withEnv(["PATH+MAVEN=${mvnHome}/bin"]) {
                         sh "mvn -B clean compile"
                         sh "mvn -B test -Dtest=UsersRunner -Dkarate.outputCucumberJson=true"
-                        // Debug: lista lo que generó Karate
-                        sh "ls -l target/karate-reports || true"
+                        // DEBUG: ver qué dejó Karate
+                        sh 'echo "--- LISTANDO target/karate-reports ---"'
+                        sh 'ls -l target/karate-reports || true'
                     }
                 }
             }
             post {
                 always {
                     junit 'target/surefire-reports/*.xml'
-                    // publica los HTML y JSON de Karate como artefactos descargables
                     archiveArtifacts 'target/karate-reports/**'
                 }
             }
@@ -25,6 +25,7 @@ pipeline {
 
         stage('Cucumber Reports') {
             steps {
+                // Si no hay JSON aquí, el plugin fallará con "No JSON report file was found!"
                 cucumber(
                         buildStatus: 'SUCCESS',
                         jsonReportDirectory: 'target/karate-reports',
