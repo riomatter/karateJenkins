@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Compile Stage') {
+        stage('Compile') {
             steps {
                 script {
                     def mvnHome = tool name: 'maven_3_9_11', type: 'maven'
@@ -13,14 +13,22 @@ pipeline {
             }
         }
 
-        stage('Test Stage') {
+        stage('Test') {
             steps {
                 script {
                     def mvnHome = tool name: 'maven_3_9_11', type: 'maven'
                     withEnv(["PATH+MAVEN=${mvnHome}/bin"]) {
-                        // Ajusta el -Dtest si tu runner/clase es otra
-                        sh "${mvnHome}/bin/mvn -B test -Dtest=UsersRunner"
+                        // Genera los JSON Cucumber y ejecuta tu runner
+                        sh "${mvnHome}/bin/mvn -B test -Dtest=UsersRunner -Dkarate.outputCucumberJson=true"
                     }
+                }
+            }
+            post {
+                always {
+                    // (opcional) publicar JUnit de Surefire
+                    junit allowEmptyResults: false, testResults: 'target/surefire-reports/*.xml'
+                    // (opcional) guardar el HTML propio de Karate
+                    archiveArtifacts artifacts: 'target/karate-reports/**', allowEmptyArchive: true
                 }
             }
         }
@@ -28,9 +36,9 @@ pipeline {
         stage('Cucumber Reports') {
             steps {
                 cucumber(
-                        buildStatus: 'UNSTABLE',
-                        fileIncludePattern: '**/cucumber.json',
-                        jsonReportDirectory: 'target'
+                        buildStatus: 'SUCCESS',                 // evita marcar UNSTABLE por default
+                        jsonReportDirectory: 'target/karate-reports',
+                        fileIncludePattern: '*.json'            // Karate genera varios json
                 )
             }
         }
