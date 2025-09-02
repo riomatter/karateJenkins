@@ -6,9 +6,7 @@ pipeline {
             steps {
                 script {
                     def mvnHome = tool name: 'maven_3_9_11', type: 'maven'
-                    withEnv(["PATH+MAVEN=${mvnHome}/bin"]) {
-                        sh "${mvnHome}/bin/mvn -B clean compile"
-                    }
+                    sh "${mvnHome}/bin/mvn -B clean compile"
                 }
             }
         }
@@ -17,29 +15,35 @@ pipeline {
             steps {
                 script {
                     def mvnHome = tool name: 'maven_3_9_11', type: 'maven'
-                    withEnv(["PATH+MAVEN=${mvnHome}/bin"]) {
-                        // Genera los JSON Cucumber y ejecuta tu runner
-                        sh "${mvnHome}/bin/mvn -B test -Dtest=UsersRunner -Dkarate.outputCucumberJson=true"
-                    }
+                    // Ejecuta tests y genera JSON compatible con Cucumber
+                    sh "${mvnHome}/bin/mvn -B test -Dtest=UsersRunner -Dkarate.outputCucumberJson=true"
                 }
             }
             post {
                 always {
-                    // (opcional) publicar JUnit de Surefire
+                    // Publica resultados JUnit (para tendencias en Jenkins)
                     junit allowEmptyResults: false, testResults: 'target/surefire-reports/*.xml'
-                    // (opcional) guardar el HTML propio de Karate
-                    archiveArtifacts artifacts: 'target/karate-reports/**', allowEmptyArchive: true
+                    // Archiva los HTML de Karate (karate-summary.html y demás)
+                    archiveArtifacts artifacts: 'target/karate-reports/**', allowEmptyArchive: false
                 }
             }
         }
 
         stage('Cucumber Reports') {
             steps {
-                cucumber(
-                        buildStatus: 'SUCCESS',                 // evita marcar UNSTABLE por default
-                        jsonReportDirectory: 'target/karate-reports',
-                        fileIncludePattern: '*.json'            // Karate genera varios json
-                )
+                script {
+                    // Evita error si no hay JSON (por cualquier razón)
+                    def hasJson = sh(script: 'ls target/karate-reports/*.json >/dev/null 2>&1', returnStatus: true) == 0
+                    if (hasJson) {
+                        cucumber(
+                                buildStatus: 'SUCCESS',                 // no marque UNSTABLE por defecto
+                                jsonReportDirectory: 'target/karate-reports',
+                                fileIncludePattern: '*.json'
+                        )
+                    } else {
+                        echo 'No se encontraron JSON de Cucumber en target/karate-reports/'
+                    }
+                }
             }
         }
     }
